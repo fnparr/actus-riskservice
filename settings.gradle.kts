@@ -1,1 +1,1 @@
-rootProject.name = "risksrv3"
+rootProject.name = "actus-riskservice"
