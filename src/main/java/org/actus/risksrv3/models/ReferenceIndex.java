@@ -1,10 +1,11 @@
 package org.actus.risksrv3.models;
 
 import java.util.List;
+import org.springframework.data.annotation.Id;
 
 public class ReferenceIndex {
 	// attributes
-		private String riskFactorID;
+	@Id private String riskFactorID;
 		private String marketObjectCode; 
 		private Double base;
 		private List<TimeValuePair> data;

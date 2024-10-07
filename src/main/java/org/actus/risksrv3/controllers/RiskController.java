@@ -9,11 +9,11 @@ import java.util.HashSet;
 import java.time.LocalDateTime;
 
 import org.actus.risksrv3.models.BehaviorStateAtInput;
-import org.actus.risksrv3.models.Scenario;
-import org.actus.risksrv3.models.ScenarioID;
+import org.actus.risksrv3.models.OldScenario;
+// import org.actus.risksrv3.models.ScenarioID;
 import org.actus.risksrv3.models.StateAtInput;
 import org.actus.risksrv3.models.ReferenceIndex;
-import org.actus.risksrv3.models.RiskFactorID;
+// import org.actus.risksrv3.models.RiskFactorID;
 import org.actus.risksrv3.models.MarketData;
 import org.actus.risksrv3.models.TwoDimensionalPrepaymentModelData;
 import org.actus.risksrv3.models.CalloutData;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RiskController {
 	// (In memory) Stores for Scenarios, ReferenceIndexes and PrepaymentModels
 	//  This is the risk data repository section or risksrv3
-	private HashMap<String,Scenario> scenarioStore = new HashMap<String, Scenario>();
+	private HashMap<String,OldScenario> scenarioStore = new HashMap<String, OldScenario>();
 	private HashMap<String,ReferenceIndex> referenceIndexStore = 
 			new HashMap<String, ReferenceIndex>() ;
 	private HashMap<String, TwoDimensionalPrepaymentModelData> twoDimensionalPrepaymentModelStore = 
@@ -52,8 +52,8 @@ public class RiskController {
 	private MultiBehaviorRiskModel 			currentBehaviorModel;
 	private HashSet<String>	                currentActivatedModels = new HashSet<String>();
    		
-	@PostMapping("/scenarios") 
-    public Map<String, Object> createScenario(@RequestBody Scenario newScenario) {
+	@PostMapping("/mem/scenarios") 
+    public Map<String, Object> createScenario(@RequestBody OldScenario newScenario) {
     	 String scenarioID = 			newScenario.getScenarioID();
     	// List<RiskFactorID> marketRiskFactorIDs = 	newScenario.getMarketRiskFactorIDs();
     	 this.scenarioStore.put(scenarioID, newScenario);
@@ -67,7 +67,7 @@ public class RiskController {
          return responseMap;
     } 
 	
-    @GetMapping("/scenarios")
+    @GetMapping("/mem/scenarios")
      HashMap<String,Object> allScenarioIDs (){
     	Set<String> idList = this.scenarioStore.keySet();
    	 	System.out.println("**** List of all saved ScenarioIDs requested");
@@ -88,34 +88,32 @@ public class RiskController {
     	return outStr + ">";
     }
 	
-    @GetMapping("/scenarioIDs")
-    List<ScenarioID> scenarioIDs (){
+    @GetMapping("/mem/scenarioIDs")
+    List<String> scenarioIDs (){
    	Set<String> idList = this.scenarioStore.keySet();
   	 	System.out.println("**** List of all saved ScenarioIDs requested");
   	 	System.out.println("***"+ showIDs(idList)); 
   	 	
   	 	//now build JSON List<ScenarioIDs>
-  	 	List<ScenarioID> outl = new ArrayList<>() ; 
+  	 	List<String> outl = new ArrayList<>() ; 
   	 	for (String id : idList) {
-  	 		ScenarioID scid = new ScenarioID();
-  	 		scid.setScenarioID(id);
-  	 		outl.add(scid);
+  	 		outl.add(id);
   	 	}
   	 	return (outl);	 	 		
    }
    
 	  // Single item
 	  
-	  @GetMapping("/scenarios/{id}")
-	  Scenario  oneSc(@PathVariable String id) {
-	     Scenario scenario  = this.scenarioStore.get(id);
+	  @GetMapping("/mem/scenarios/{id}")
+	  OldScenario  oneSc(@PathVariable String id) {
+	     OldScenario scenario  = this.scenarioStore.get(id);
 	     if (scenario != null) {	    	 	     
 	        return scenario; 
 	     }
 	     else throw new ScenarioNotFoundException(id);
 	  }
 	  
-	  @PostMapping("/referenceIndex") 
+	  @PostMapping("/mem/referenceIndex") 
 	  public Map<String, Object> createReferenceIndex(@RequestBody ReferenceIndex newReferenceIndex) {
 	   	 String rfid = 			newReferenceIndex.getRiskFactorID();
 	   	 this.referenceIndexStore.put(rfid, newReferenceIndex);
@@ -129,49 +127,47 @@ public class RiskController {
 	     return responseMap;
 	     } 
 	  
-	  @GetMapping("/referenceIndexIDs")
-	  List<RiskFactorID> riskFactorIDs (){
+	  @GetMapping("/mem/referenceIndexIDs")
+	  List<String> riskFactorIDs (){
 	  Set<String> idList = this.referenceIndexStore.keySet();
 	     System.out.println("**** List of all saved ReferenceIndexIDs requested");
 	  	 System.out.println("***"+ showIDs(idList)); 
 	  	 	
 	  	 //now build JSON List<RiskFactorIDs>
-	  	 List<RiskFactorID> outl = new ArrayList<>() ; 
+	  	 List<String> outl = new ArrayList<>() ; 
 	  	 for (String id : idList) {
-	  	 	RiskFactorID rfid = new RiskFactorID(id);
-	  	 	outl.add(rfid);
+	  	 	outl.add(id);
 	  	 	}
 	  	 return (outl);	 	 		
 	  }
 	  
 	  // previously called /batchEventsStart -- changed to this 
-	  @PostMapping("/scenarioSimulationBatchStart")
+	  @PostMapping("/mem/scenarioSimulationBatchStart")
 	  String doScenarioSimulationBatchStart(@RequestBody BatchStartInput batchStartInput) {
 		  currentScenarioID = batchStartInput.getScenarioID();
-		  Scenario scn = this.scenarioStore.get(currentScenarioID); 
+		  OldScenario scn = this.scenarioStore.get(currentScenarioID); 
 		  if (scn != null) {
 			  // First create the MultiMarketRiskModel
 			  this.currentMarketModel = new MultiMarketRiskModel();
-			  for ( RiskFactorID rfxid : scn.getMarketRiskFactorIDs()) {
-				  ReferenceIndex rfx = this.referenceIndexStore.get(rfxid.toString());
+			  for ( String rfxid : scn.getMarketRiskFactorIDs()) {
+				  ReferenceIndex rfx = this.referenceIndexStore.get(rfxid);
 				  if ( rfx != null) { 
 					  this.currentMarketModel.add(rfx.getMarketObjectCode(), new TimeSeriesModel(rfx));				  				  
 				  }
 				  else 
-					  throw new ReferenceIndexNotFoundException(rfxid.getRiskFactorID());  
+					  throw new ReferenceIndexNotFoundException(rfxid);  
 			  }	
 			  // Next create and populate multiBehaviorModel but (do not activate anything now) 
 			  this.currentBehaviorModel = new MultiBehaviorRiskModel();
-			  for ( RiskFactorID rfxid : scn.getPrepaymentRiskFactorIDs()) {
-				    String rfx = rfxid.getRiskFactorID();
+			  for ( String rfxid : scn.getPrepaymentRiskFactorIDs()) {
 				  TwoDimensionalPrepaymentModelData ppmd = 
-				        this.twoDimensionalPrepaymentModelStore.get(rfx);
+				        this.twoDimensionalPrepaymentModelStore.get(rfxid);
 				  if (ppmd != null) {
 					  TwoDimensionalPrepaymentModel ppm = 
-								 new TwoDimensionalPrepaymentModel(rfx, ppmd,this.currentMarketModel);
-					  currentBehaviorModel.add(rfxid.getRiskFactorID(), ppm);
+								 new TwoDimensionalPrepaymentModel(rfxid, ppmd,this.currentMarketModel);
+					  currentBehaviorModel.add(rfxid, ppm);
 				  }	
-				  else throw new RiskModelNotFoundException(rfx); 
+				  else throw new RiskModelNotFoundException(rfxid); 
 			  }
 		  } 
 		  else throw new ScenarioNotFoundException(currentScenarioID);
@@ -183,7 +179,7 @@ public class RiskController {
 		  return outstr;
 	  }
 	  
-	  @PostMapping("/scenarioSimulationContractStart")
+	  @PostMapping("/mem/scenarioSimulationContractStart")
 	  List<CalloutData> doScenarioSimulationContractStart(@RequestBody Map<String,Object> contract){	  		  
 		  ContractModel contractModel = ContractModel.parse(contract);
 		  
@@ -207,7 +203,7 @@ public class RiskController {
 	      return observations;
 	  }  	  
 	  
-	  @PostMapping("/marketStateAt")
+	  @PostMapping("/mem/marketStateAt")
 	  Double doMarketStateAt(@RequestBody StateAtInput stateAtInput) {
 		  String id = stateAtInput.getId();
 		  LocalDateTime time = stateAtInput.getTime();	
@@ -218,7 +214,7 @@ public class RiskController {
 		  return dval;
 	  }
 	  
-	  @PostMapping("/behaviorStateAt")
+	  @PostMapping("/mem/behaviorStateAt")
 	  double doBehaviorStateAt(@RequestBody BehaviorStateAtInput behaviorStateAtInput) {
 		  String mdlid = behaviorStateAtInput.getRiskFactorId();
 		  System.out.println("**** fnp104: in  /behaviorStateAt id = "+ mdlid );
@@ -230,7 +226,7 @@ public class RiskController {
 		  return dval;
 	  }
 	  
-	  @GetMapping("/marketKeys") 
+	  @GetMapping("/mem/marketKeys") 
 	  HashSet<String> doMarketKeys() {	
 		  System.out.println("**** fnp080 in /marketKeys");
 		  Set<String> kset = this.currentMarketModel.keys();
@@ -241,7 +237,7 @@ public class RiskController {
 		  return hks;
 	  }
 	  
-	  @GetMapping("/activeScenario")
+	  @GetMapping("/mem/activeScenario")
 	  String doActiveScenario() {
 		  System.out.println("**** fnp081 in /activeScenario");
 		  String out;
@@ -255,7 +251,7 @@ public class RiskController {
 		  return out;	  
 	  }
 	  
-	  @GetMapping("/currentBehaviorKeys")
+	  @GetMapping("/mem/currentBehaviorKeys")
 	  HashSet<String> doCurrentBehaviorKeys(){
 		  System.out.println("**** fnp082 in /currentBehaviorKeys");
 		  Set<String> kset = this.currentBehaviorModel.keys();
@@ -267,14 +263,14 @@ public class RiskController {
 		  return hks;
 	  }
 	  
-	  @GetMapping("/activeBehaviorKeys")
+	  @GetMapping("/mem/activeBehaviorKeys")
 	  HashSet<String> doActiveBehaviorKeys(){
 	      return this.currentActivatedModels;
 	  }
 	  
 	  
 	  	  
-	  @GetMapping("/referenceIndex/{id}")
+	  @GetMapping("/mem/referenceIndex/{id}")
 	  ReferenceIndex  oneRfx (@PathVariable String id) {
 	     ReferenceIndex rfx  = this.referenceIndexStore.get(id);
 	     if (rfx != null) 	    	 	     
@@ -282,17 +278,16 @@ public class RiskController {
 	     else throw new ScenarioNotFoundException(id);
 	  }	 
 	  
-	  @GetMapping("/scenarioMarketData/{scid}")
+	  @GetMapping("/mem/scenarioMarketData/{scid}")
 	  List<ReferenceIndex> scenRfx (@PathVariable String scid) {
 		// List<RiskFactorID> rfidl = this.scenarioStore.get(scid);
-		 Scenario scn = this.scenarioStore.get(scid); 
+		 OldScenario scn = this.scenarioStore.get(scid); 
 		 List<ReferenceIndex>  rfxl = new ArrayList< ReferenceIndex> ();
 		 if (scn != null) {	
-			 List<RiskFactorID> rfidl = scn.getMarketRiskFactorIDs();
+			 List<String> rfidl = scn.getMarketRiskFactorIDs();
 			 Set<String>  mocl  = new HashSet<> ();
-			 for (RiskFactorID rfid  : rfidl ) {
-				  String id = rfid.getRiskFactorID();
-				  ReferenceIndex rfx =  this.referenceIndexStore.get(id);
+			 for (String rfid  : rfidl ) {
+				  ReferenceIndex rfx =  this.referenceIndexStore.get(rfid);
 				  if (rfx !=null) {
 					  rfxl.add(rfx);
 					  String moc = rfx.getMarketObjectCode();
@@ -301,7 +296,7 @@ public class RiskController {
 						  }
 					  else throw new DuplicateMOCTimeSeriesException(moc);
 					  }
-				  else throw new ReferenceIndexNotFoundException(rfid.getRiskFactorID());
+				  else throw new ReferenceIndexNotFoundException(rfid);
 			 }
 			  
 		 }
@@ -309,16 +304,15 @@ public class RiskController {
 		 return  rfxl;
 	  }	   
 	  
-	  @GetMapping("/marketData/{scid}")
+	  @GetMapping("/mem/marketData/{scid}")
 	  MarketData  doMarketData (@PathVariable String scid) {
-		 Scenario scn = this.scenarioStore.get(scid); 
+		 OldScenario scn = this.scenarioStore.get(scid); 
 		 List<ReferenceIndex>  rfxl = new ArrayList< ReferenceIndex> ();
 		 if (scn != null) {	
-			 List<RiskFactorID> rfidl = scn.getMarketRiskFactorIDs();
+			 List<String> rfidl = scn.getMarketRiskFactorIDs();
 			 Set<String>  mocl  = new HashSet<> ();
-			 for (RiskFactorID rfid  : rfidl ) {
-				  String id = rfid.getRiskFactorID();
-				  ReferenceIndex rfx =  this.referenceIndexStore.get(id);
+			 for (String rfid  : rfidl ) {
+				  ReferenceIndex rfx =  this.referenceIndexStore.get(rfid);
 				  if (rfx !=null) {
 					  rfxl.add(rfx);
 					  String moc = rfx.getMarketObjectCode();
@@ -327,7 +321,7 @@ public class RiskController {
 						  }
 					  else throw new DuplicateMOCTimeSeriesException(moc);
 					  }
-				  else throw new ReferenceIndexNotFoundException(rfid.getRiskFactorID());
+				  else throw new ReferenceIndexNotFoundException(rfid);
 			 }
 			  
 		 }
@@ -337,7 +331,7 @@ public class RiskController {
 	  }	 
 	  
 	  // Request from a user to save a new prepayment model in the risk server 
-	  @PostMapping("/twoDimensionalPrepaymentModel")     
+	  @PostMapping("/mem/twoDimensionalPrepaymentModel")     
 	  public Map<String, Object> createTwoDimensionalPrepaymentModel(@RequestBody TwoDimensionalPrepaymentModelData newTwoDimensionalPrepaymentModel) {
 	   	 String rfid = 			newTwoDimensionalPrepaymentModel.getRiskFactorId();
 	   	 this.twoDimensionalPrepaymentModelStore.put(rfid, newTwoDimensionalPrepaymentModel);

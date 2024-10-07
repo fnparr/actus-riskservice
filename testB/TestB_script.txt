@@ -1,0 +1,40 @@
+# Set up mongodb database riskdata 
+> mongo
+>> show dbs -> riskdata
+>> use riskdata
+>> db 		-> riskdata
+>> show collections ->  referenceIndex
+>> db.referenceIndex.drop() -> true
+>> show collections -> 
+# now empty riskdata database ready for tests
+
+*** long form test with insertion, retrieve, delete, findAll etc  
+> source putUst5Y_falling.txt
+> source putMSFT_rising.txt
+> curl -v http://localhost:8082/findAllReferenceIndexes
+> curl -v http://localhost:8082/findReferenceIndex/ust5Y_falling
+> curl -v http://localhost:8082/findReferenceIndex/MSFT_rising
+> curl -X DELETE http://localhost:8082/deleteReferenceIndex/MSFT_rising
+# now try creating a scenario starting from the old putscn01 BUT riskFactorDescriptors
+> source putScn01.txt  	# create, save scn01 with ust5Y_falling and MSFT_Rising  
+> curl -v http://localhost:8082/findAllScenarios
+> curl -v http://localhost:8082/findScenario/scn01
+
+*** short form build from empty riskdata db 
+> source putUst5Y_falling.txt
+> source putMSFT_rising.txt
+> source putScn01.txt
+> curl -v http://localhost:8082/findAllScenarios
+> curl -v http://localhost:8082/findAllReferenceIndexes
+
+*** back test with standard actus /eventsBatch requests
+> source l3PAMnoRF.txt
+> source l3PAMwRF.txt
+> source l3ANNnoRF.txt
+> source l3ANNwRF.txt 
+
+*** test actus /rf2/eventsBatch now with persistent market data
+> source scn01PAMnoRF_eb.txt
+> source scn01PAMwRF_eb.txt
+> source scn01ANNnoRF_eb.txt
+> source scn01ANNwRF_eb.txt
