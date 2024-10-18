@@ -1,10 +1,11 @@
 package org.actus.risksrv3.models;
 
 import java.util.List;
+import org.springframework.data.annotation.Id;
 
 public class TwoDimensionalPrepaymentModelData {
 
-    private String riskFactorId;
+    private @Id String riskFactorId;
     private String referenceRateId;
     private List<String> prepaymentEventTimes;
     private TwoDimensionalSurfaceData surface;

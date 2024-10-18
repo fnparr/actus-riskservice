@@ -1,1 +1,0 @@
-curl -v -H 'Content-Type: application/json'  --data '{"scenarioID": "scn01","marketRiskFactorIDs":[{"riskFactorID":"ust5Y_falling"},{"riskFactorID":"MSFT_rising"}], "prepaymentRiskFactorIDs": []}' http://localhost:8082/scenarios
