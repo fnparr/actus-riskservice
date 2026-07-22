@@ -283,7 +283,7 @@ public class RiskObservationHandler {
 		  s += " hashValue = "+ mdl.getHashValue() + "\n";
 		  // mdl.rehash();
 		  s+= " after rehash hashValue = "+ mdl.getHashValue() + "\n";
-		  mdl = new CreditDefaultModel("PAM001",42);
+		  mdl = new CreditDefaultModel("PAM001",41);
 		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
 		  s += " hashValue = "+ mdl.getHashValue() + "\n";
 		  return s;
