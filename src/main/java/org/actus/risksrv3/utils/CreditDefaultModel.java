@@ -27,6 +27,9 @@ public class CreditDefaultModel {
 		return Objects.hashCode(Integer.toString(this.counter)+Integer.toString(this.scenarioInstance)+this.contractID);
 		
 	}
+	public Boolean inDefault() {
+		return ((Math.abs(getHashValue()) % 101 ) < 50 );
+	}
 	
 	
 }

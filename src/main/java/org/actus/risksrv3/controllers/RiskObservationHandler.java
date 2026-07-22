@@ -286,6 +286,12 @@ public class RiskObservationHandler {
 		  mdl = new CreditDefaultModel("PAM001",41);
 		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
 		  s += " hashValue = "+ mdl.getHashValue() + "\n";
+		  s += " default ? " ;
+		  for ( int i = 1; i < 13; i ++  ) {
+			  s +=  mdl.inDefault() + " " ;
+			  // s +=  mdl.getHashValue() + " ";
+		  }
+		  s += "\n"; 
 		  return s;
 	  }
 	  
