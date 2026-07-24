@@ -31,7 +31,7 @@ import org.actus.risksrv3.utils.MultiMarketRiskModel;
 import org.actus.risksrv3.utils.TimeSeriesModel;
 import org.actus.risksrv3.utils.TwoDimensionalPrepaymentModel;
 import org.actus.risksrv3.utils.TwoDimensionalDepositTrxModel;
-import org.actus.risksrv3.utils.CreditDefaultModel;
+import org.actus.risksrv3.utils.CreditRiskModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -275,15 +275,15 @@ public class RiskObservationHandler {
 	  }
 	  
 	  // testing entry for developing a credit default service 
-	  @GetMapping("/testCreditDefaultModel")
-	  String doTestCreditDefaultModel() {
-		  String s = "Response from doTestCreditDefaultModel" + "\n" ;
-		  CreditDefaultModel mdl =  new CreditDefaultModel("PAM001",43) ;
+	  @GetMapping("/testCreditRiskModel")
+	  String doTestCreditRiskModel() {
+		  String s = "Response from doTestCrediRiskModel" + "\n" ;
+		  CreditRiskModel mdl =  new CreditRiskModel("PAM001",43) ;
 		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
 		  s += " hashValue = "+ mdl.getHashValue() + "\n";
 		  // mdl.rehash();
 		  s+= " after rehash hashValue = "+ mdl.getHashValue() + "\n";
-		  mdl = new CreditDefaultModel("PAM001",41);
+		  mdl = new CreditRiskModel("PAM001",41);
 		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
 		  s += " hashValue = "+ mdl.getHashValue() + "\n";
 		  s += " default ? " ;
