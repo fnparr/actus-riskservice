@@ -2,14 +2,14 @@ package org.actus.risksrv3.utils;
 
 import java.util.Objects;
 
-public class CreditRiskModel {
+public class TestCreditRiskModel {
 	private String 	contractID;
 	private Integer scenarioInstance;
 	private Integer counter;
 	
-	public CreditRiskModel() {
+	public TestCreditRiskModel() {
 	}
-	public CreditRiskModel(String contractID, Integer scenarioInstance) {
+	public TestCreditRiskModel(String contractID, Integer scenarioInstance) {
 		this.contractID = contractID;
 		this.scenarioInstance = scenarioInstance;
 		this.counter = 0 ; 
