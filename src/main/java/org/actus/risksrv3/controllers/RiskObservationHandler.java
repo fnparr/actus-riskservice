@@ -13,6 +13,7 @@ import org.actus.risksrv3.core.states.StateSpace;
 import org.actus.risksrv3.models.BatchStartInput;
 import org.actus.risksrv3.models.BehaviorStateAtInput;
 import org.actus.risksrv3.models.CalloutData;
+import org.actus.risksrv3.models.CreditRiskModelData;
 import org.actus.risksrv3.models.MarketData;
 import org.actus.risksrv3.models.OldScenario;
 import org.actus.risksrv3.models.Scenario;
@@ -26,12 +27,14 @@ import org.actus.risksrv3.repository.ReferenceIndexStore;
 import org.actus.risksrv3.repository.ScenarioStore;
 import org.actus.risksrv3.repository.TwoDimensionalPrepaymentModelStore;
 import org.actus.risksrv3.repository.TwoDimensionalDepositTrxModelStore;
+import org.actus.risksrv3.repository.CreditRiskModelStore;
 import org.actus.risksrv3.utils.MultiBehaviorRiskModel;
 import org.actus.risksrv3.utils.MultiMarketRiskModel;
 import org.actus.risksrv3.utils.TimeSeriesModel;
 import org.actus.risksrv3.utils.TwoDimensionalPrepaymentModel;
 import org.actus.risksrv3.utils.TwoDimensionalDepositTrxModel;
 import org.actus.risksrv3.utils.TestCreditRiskModel;
+import org.actus.risksrv3.utils.CreditRiskModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,7 +55,9 @@ public class RiskObservationHandler {
 	private TwoDimensionalPrepaymentModelStore twoDimensionalPrepaymentModelStore;
 	@Autowired
 	private TwoDimensionalDepositTrxModelStore twoDimensionalDepositTrxModelStore;
-
+    @Autowired
+    private CreditRiskModelStore creditRiskModelStore;
+	
 // local state attributes and objects 
 // these are the state variables used for processing simulation requests 
 	private String					currentScenarioID = null;
@@ -163,7 +168,23 @@ public class RiskObservationHandler {
 				  else  {
 					  throw new TwoDimensionalDepositTrxModelNotFoundException(rfxid);
 				  }
-			  }  
+				  
+			  }
+			  else if (rfd.getRiskFactorType().equals("CreditRiskModel")){
+				 Optional<CreditRiskModelData> ocrmd = 
+						 this.creditRiskModelStore.findById(rfxid);
+				 CreditRiskModelData crmd;
+				 if (ocrmd.isPresent()) {
+					 crmd = ocrmd.get();
+					 System.out.println("**** fnp208 found crmd ; rfxid = " + rfxid);
+					 CreditRiskModel crm =
+							 	new CreditRiskModel(rfxid,crmd);
+					 currentBehaviorModel.add(rfxid, crm);
+				 }
+				 else  {
+					  throw new CreditRiskModelNotFoundException(rfxid);
+				  }
+			  }
 			  
 			  else {
 				  System.out.println("**** fnp208 unrecognized rfType= " + rfd.getRiskFactorType() );
