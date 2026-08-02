@@ -209,6 +209,7 @@ public class RiskObservationHandler {
 		  this.currentActivatedModels.clear();
 		  List<String> ppmdls = contractModel.getAs("prepaymentModels");
 		  List<String> dwmdls = contractModel.getAs("depositTrxModels");
+		  List<String> crmdls = contractModel.getAs("creditRiskModels");
 		  
 		  // combine the two lists of model instance names 
 		  List<String> mdls = new ArrayList<String>() ;
@@ -216,6 +217,8 @@ public class RiskObservationHandler {
 			  mdls.addAll(ppmdls);
 		  if (dwmdls != null)
 			  mdls.addAll(dwmdls);
+		  if (crmdls != null)
+			  mdls.addAll(crmdls);
 		  // List<String> mdls = new ArrayList<String>(ppmdls);
 		  // mdls.addAll(dwmdls);
 		  
@@ -296,24 +299,32 @@ public class RiskObservationHandler {
 	  }
 	  
 	  // testing entry for developing a credit default service 
-	  @GetMapping("/testCreditRiskModel")
-	  String doTestCreditRiskModel() {
-		  String s = "Response from doTestCrediRiskModel" + "\n" ;
-		  TestCreditRiskModel mdl =  new TestCreditRiskModel("PAM001",43) ;
-		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
-		  s += " hashValue = "+ mdl.getHashValue() + "\n";
-		  // mdl.rehash();
-		  s+= " after rehash hashValue = "+ mdl.getHashValue() + "\n";
-		  mdl = new TestCreditRiskModel("PAM001",41);
-		  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
-		  s += " hashValue = "+ mdl.getHashValue() + "\n";
-		  s += " default ? " ;
-		  for ( int i = 1; i < 13; i ++  ) {
-			  s +=  mdl.inDefault() + " " ;
-			  // s +=  mdl.getHashValue() + " ";
+	  @GetMapping("/testCreditRiskModel/{mode}")
+	  String doTestCreditRiskModel(@PathVariable String mode) {
+		  String s;
+		  if (mode.equals("default")) {
+			  s = "Response from doTestCrediRiskModel" + "\n" ;
+			  TestCreditRiskModel mdl =  new TestCreditRiskModel("PAM001",43) ;
+			  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
+			  s += " hashValue = "+ mdl.getHashValue() + "\n";
+			  // mdl.rehash();
+			  s+= " after rehash hashValue = "+ mdl.getHashValue() + "\n";
+			  mdl = new TestCreditRiskModel("PAM001",41);
+			  s += "contractID= "+ mdl.getContractID() + " scen# = "+ mdl.getScenarioInstance()+"\n";
+			  s += " hashValue = "+ mdl.getHashValue() + "\n";
+			  s += " default ? " ;
+			  for ( int i = 1; i < 13; i ++  ) {
+				  s +=  mdl.inDefault() + " " ;
+				  // s +=  mdl.getHashValue() + " ";
+			  }
+			  s += "\n";
 		  }
-		  s += "\n"; 
+		  else if (mode.equals("schedule")) { 
+			  s = "Response from schedule test mode = schedule \n";
+		  }
+		  else {
+			  s = "Unrecognized request to /testCreditRiskModel/mode \n";
+		  }
 		  return s;
 	  }
-	  
 }

@@ -24,7 +24,7 @@ public class CreditRiskModel implements BehaviorRiskModelProvider {
 		this.calloutPeriod = calloutPeriod;
 		this.defaultProbability = defaultProbability;
 	}
-	
+// this is the constructor which is used - riskFactorIdCreditRiskModelData as input 	
 	public CreditRiskModel ( String riskFactorId, CreditRiskModelData crmdd) {
 		this.riskFactorId  = crmdd.getRiskFactorId();
 		this.calloutPeriod = crmdd.getCalloutPeriod();
