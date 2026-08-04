@@ -1,6 +1,7 @@
 package org.actus.risksrv3.controllers;
 
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.actus.risksrv3.models.StateAtInput;
 import org.actus.risksrv3.repository.ReferenceIndexStore;
 import org.actus.risksrv3.repository.ScenarioStore;
 import org.actus.risksrv3.repository.TwoDimensionalPrepaymentModelStore;
+import org.actus.risksrv3.time.CalloutScheduleFactory;
 import org.actus.risksrv3.repository.TwoDimensionalDepositTrxModelStore;
 import org.actus.risksrv3.repository.CreditRiskModelStore;
 import org.actus.risksrv3.utils.MultiBehaviorRiskModel;
@@ -321,6 +323,15 @@ public class RiskObservationHandler {
 		  }
 		  else if (mode.equals("schedule")) { 
 			  s = "Response from schedule test mode = schedule \n";
+			  String startIso = "2026-08-04T00:00:00";
+			  String endIso = "2028-12-31T00:00:00";
+			  String  cycle = "P6M";
+			  LocalDateTime startDate = LocalDateTime.parse(startIso);
+			  LocalDateTime endDate = LocalDateTime.parse(endIso);
+			  Period period = Period.parse(cycle);
+			  s += "start = " + startDate + " end = "+ endDate + "period = "+ period + "\n";
+			  Set<LocalDateTime>  calloutDates = CalloutScheduleFactory.createCalloutSchedule(startDate, endDate, period);
+			  s += "Callouts = " + calloutDates + "/n";
 		  }
 		  else {
 			  s = "Unrecognized request to /testCreditRiskModel/mode \n";
