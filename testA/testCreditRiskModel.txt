@@ -1,1 +1,1 @@
-curl -v -k -H 'Content-Type: application/json' http://localhost:8082/testCreditRiskModel/schedule
+curl -v -k -H 'Content-Type: application/json' http://localhost:8082/testCreditRiskModel/default

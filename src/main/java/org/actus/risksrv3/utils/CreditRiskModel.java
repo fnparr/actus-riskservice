@@ -1,6 +1,7 @@
 package org.actus.risksrv3.utils;
 
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -9,12 +10,17 @@ import org.actus.risksrv3.core.attributes.ContractModel;
 import org.actus.risksrv3.core.states.StateSpace;
 import org.actus.risksrv3.models.CalloutData;
 import org.actus.risksrv3.models.CreditRiskModelData;
+import org.actus.risksrv3.time.CalloutScheduleFactory;
 import org.springframework.data.annotation.Id;
 
 public class CreditRiskModel implements BehaviorRiskModelProvider {
+	
+	public static final String CALLOUT_TYPE = "CDR";  // Credit Default riskMultiplicativeReductionDelta
 	private String riskFactorId;
 	private String calloutPeriod;     	// callout periodicity eg "P9M"
 	private Double defaultProbability;	// probability of default on each callout 
+	private String statusDate;
+	private String maturityDate;
 
 	public CreditRiskModel () {
 		}
@@ -43,13 +49,32 @@ public class CreditRiskModel implements BehaviorRiskModelProvider {
 	
 	public List<CalloutData> contractStart (ContractModel contract) {
 		// create an events list 
-		// save statusDate and maturityDate or stopDate from contract then 
-		// do date arithmetic with callout period to generate callout schedule 
-		List<CalloutData> cllds = new ArrayList<CalloutData>();
-//		for (String ppevd : this.prepaymentEventTimes) {
-//				 CalloutData clld = new  CalloutData(this.riskFactorId,ppevd, TwoDimensionalPrepaymentModel.CALLOUT_TYPE);
-//				 cllds.add(clld);
-//			 }
-		return cllds;	
+		System.out.println("**** fnp501: contractStart rfid = "+ this.riskFactorId); 
+		// pickup the status and maturity dates from contract
+		this.statusDate = contract.getAs("statusDate");
+		this.maturityDate = contract.getAs("maturityDate"); 
+		
+		LocalDateTime startDate = LocalDateTime.parse(this.statusDate);
+		LocalDateTime endDate = LocalDateTime.parse(this.maturityDate);		
+		Period period = Period.parse(this.calloutPeriod);
+		
+		//  String s = "Response from cr model contract start";
+		//  String startIso = "2026-08-04T00:00:00";
+		//  String endIso = "2028-12-31T00:00:00";
+		//  String  cycle = "P6M";
+		//  LocalDateTime startDate = LocalDateTime.parse(startIso);
+		//  LocalDateTime endDate = LocalDateTime.parse(endIso);
+		//  Period period = Period.parse(cycle);
+		//  s += "start = " + startDate + " end = "+ endDate + "period = "+ period + "\n";
+		
+		Set<LocalDateTime>  calloutDates = CalloutScheduleFactory.createCalloutSchedule(startDate, endDate, period);
+ 
+		List<CalloutData> crclds = new ArrayList<CalloutData>();
+		for (LocalDateTime calloutDate : calloutDates) {
+			     String datestring = calloutDate.toString();
+				 CalloutData crcd = new  CalloutData(this.riskFactorId, datestring, CreditRiskModel.CALLOUT_TYPE);
+				 crclds.add(crcd);
+		}
+		return crclds;	
 	}	
 }
